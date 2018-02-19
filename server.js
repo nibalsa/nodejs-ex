@@ -59,9 +59,9 @@ var initDb = function(callback) {
   });
 };
 
-app.use(express.static(path.join(__dirname, 'assets')));
-app.use(express.static(path.join(__dirname, 'html')));
-app.use(express.static(path.join(__dirname, 'js')));
+app.use(express.static(path.join(__dirname, 'views/assets')));
+app.use(express.static(path.join(__dirname, 'views/html')));
+app.use(express.static(path.join(__dirname, 'views/js')));
 app.use(methodOverride("_method"));
 mongoose.promise = global.promise;
 app.use(bodyParser.urlencoded({extended:true}));
@@ -80,7 +80,7 @@ var contact = mongoose.model("contact", contactSchema);
 
 //ROOTS ROUTE - home page
 app.get("/", function(req, res){
-res.sendFile(path.join(__dirname+'/index.html'));
+res.sendFile(path.join(__dirname+'/views/index.html'));
 });
 
 
@@ -91,7 +91,7 @@ app.get("/contacts", function(req,res){
        if(err){
            console.log(err)
        }else {
-           res.render(path.join(__dirname+'/html/contacts.ejs'),{contacts:allContacts});
+           res.render(path.join(__dirname+'/views/html/contacts.ejs'),{contacts:allContacts});
 
        };
     });
@@ -120,7 +120,7 @@ app.post("/contacts", function(req, res){
 
 //FORM - displays a form to make new contact
 app.get("/contacts/form", function(req, res){
-   res.render(path.join(__dirname+'/html/contact-form.ejs'));
+   res.render(path.join(__dirname+'/views/html/contact-form.ejs'));
 });
 
 //SHOW - shows one particular contact
@@ -129,7 +129,7 @@ app.get("/contacts/:id", function(req, res){
        if(err){
            console.log(err)
        } else {
-           res.render(path.join(__dirname+'/html/show.ejs'), {contact: foundContact});
+           res.render(path.join(__dirname+'/views/html/show.ejs'), {contact: foundContact});
 
        }
     });
@@ -142,7 +142,7 @@ app.get("/contacts/:id/edit", function(req, res){
       if(err){
           res.redirect("/contacts");
       } else {
-          res.render(path.join(__dirname+'/html/edit.ejs'), {contact: foundContact});
+          res.render(path.join(__dirname+'/views/html/edit.ejs'), {contact: foundContact});
       }
 });
 
