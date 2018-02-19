@@ -74,7 +74,7 @@ app.get('/', function (req, res) {
     initDb(function(err){});
   }
 
-  res.sendFile(path.join(__dirname + '/views/index.html'));
+  res.render(path.join(__dirname + '/views/index.html'));
 });
 
 // error handling
