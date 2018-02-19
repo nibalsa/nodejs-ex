@@ -2,7 +2,12 @@
 var express = require('express'),
     app     = express(),
     morgan  = require('morgan');
-    
+    path = require("path");
+    ejs = require("ejs");
+    bodyParser = require("body-parser");
+    methodOverride = require("method-override");
+
+
 Object.assign=require('object-assign')
 
 app.engine('html', require('ejs').renderFile);
@@ -56,40 +61,117 @@ var initDb = function(callback) {
   });
 };
 
-app.get('/', function (req, res) {
-  // try to initialize the db on every request if it's not already
-  // initialized.
-  if (!db) {
-    initDb(function(err){});
-  }
-  if (db) {
-    var col = db.collection('counts');
-    // Create a document with request IP and current time of request
-    col.insert({ip: req.ip, date: Date.now()});
-    col.count(function(err, count){
-      if (err) {
-        console.log('Error running count. Message:\n'+err);
-      }
-      res.render('index.html', { pageCountMessage : count, dbInfo: dbDetails });
-    });
-  } else {
-    res.render('index.html', { pageCountMessage : null});
-  }
+app.use(express.static(path.join(__dirname, 'assets')));
+app.use(express.static(path.join(__dirname, 'html')));
+app.use(express.static(path.join(__dirname, 'js')));
+app.use(methodOverride("_method"));
+mongoose.promise = global.promise;
+app.use(bodyParser.urlencoded({extended:true}));
+mongoose.promise = global.promise;
+
+var contactSchema = new mongoose.Schema({
+   fName: String,
+    email: String,
+    phone: Number,
+    comment: String
 });
 
-app.get('/pagecount', function (req, res) {
-  // try to initialize the db on every request if it's not already
-  // initialized.
-  if (!db) {
-    initDb(function(err){});
-  }
-  if (db) {
-    db.collection('counts').count(function(err, count ){
-      res.send('{ pageCount: ' + count + '}');
+var contact = mongoose.model("contact", contactSchema);
+
+//ROUTES GOES HERE !!!//
+
+//ROOTS ROUTE - home page
+app.get("/", function(req, res){
+res.sendFile(path.join(__dirname+'/index.html'));
+});
+
+
+
+//INDEX - displays all the contacts that we have in the DB
+app.get("/contacts", function(req,res){
+    contact.find({}, function(err, allContacts){
+       if(err){
+           console.log(err)
+       }else {
+           res.render(path.join(__dirname+'/html/contacts.ejs'),{contacts:allContacts});
+
+       };
     });
-  } else {
-    res.send('{ pageCount: -1 }');
-  }
+});
+
+//CREATE - add new contacts to the DB
+app.post("/contacts", function(req, res){
+   var fName = req.body.fName;
+   var email = req.body.email;
+   var phone = req.body.phone;
+   var comment = req.body.comment;
+   var newContact = {fName:fName,email:email, phone:phone, comment:comment};
+   contact.create(newContact, function(err, newlyAdded){
+       if(err){
+           console.log(err)
+       } else {
+            res.redirect("/contacts");
+
+       }
+   });
+
+
+
+});
+
+
+//FORM - displays a form to make new contact
+app.get("/contacts/form", function(req, res){
+   res.render(path.join(__dirname+'/html/contact-form.ejs'));
+});
+
+//SHOW - shows one particular contact
+app.get("/contacts/:id", function(req, res){
+    contact.findById(req.params.id, function(err, foundContact){
+       if(err){
+           console.log(err)
+       } else {
+           res.render(path.join(__dirname+'/html/show.ejs'), {contact: foundContact});
+
+       }
+    });
+});
+
+
+//EDIT - the info we had
+app.get("/contacts/:id/edit", function(req, res){
+   contact.findById(req.params.id, function(err, foundContact){
+      if(err){
+          res.redirect("/contacts");
+      } else {
+          res.render(path.join(__dirname+'/html/edit.ejs'), {contact: foundContact});
+      }
+});
+
+
+});
+
+//UPDATE - the info we just edited
+app.put("/contacts/:id", function(req, res){
+   contact.findByIdAndUpdate(req.params.id, req.body.contact, function(err, updatedContact){
+       if(err){
+           res.redirect("/contacts");
+       } else {
+           res.redirect("/contacts/" + req.params.id);
+       }
+   });
+});
+
+//DELETE - a contact from the list
+app.delete("/contacts/:id", function(req, res){
+   contact.findByIdAndRemove(req.params.id, function(err){
+      if(err){
+          res.redirect("/contacts");
+      } else {
+          res.redirect("/contacts");
+      }
+   });
+
 });
 
 // error handling

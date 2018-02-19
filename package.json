@@ -1,7 +1,7 @@
 {
-  "name": "nodejs-ex",
+  "name": "bella-hotel",
   "version": "0.0.1",
-  "description": "Node.js sample app for OpenShift 3",
+  "description": "bella hotel final project",
   "main": "server.js",
   "dependencies": {
     "chai": "^3.5.0",
@@ -11,7 +11,12 @@
     "mocha": "^2.4.5",
     "mongodb": "^2.1.16",
     "morgan": "^1.7.0",
-    "object-assign":"4.1.0"
+    "object-assign":"4.1.0",
+    "body-parser": "^1.18.2",
+    "ejs": "^2.5.7",
+    "express": "^4.16.2",
+    "method-override": "^2.3.10",
+    "path": "^0.12.7"
   },
   "engine": {
     "node": "*",
@@ -23,7 +28,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "http://github.com/openshift/nodejs-ex.git"
+    "url": "http://github.com/nibalsa/nodejs-ex.git"
   },
   "author": "Steve Speicher <sspeiche@gmail.com>",
   "license": "CC-BY-1.0",
