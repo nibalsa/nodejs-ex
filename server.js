@@ -62,10 +62,10 @@ var initDb = function(callback) {
 app.use(express.static(path.join(__dirname, 'views/assets')));
 app.use(express.static(path.join(__dirname, 'views/html')));
 app.use(express.static(path.join(__dirname, 'views/js')));
-//app.use(methodOverride("_method"));
-//mongoose.promise = global.promise;
+app.use(methodOverride("_method"));
+mongoose.promise = global.promise;
 app.use(bodyParser.urlencoded({extended:true}));
-//mongoose.promise = global.promise;
+mongoose.promise = global.promise;
 
 app.get('/', function (req, res) {
   // try to initialize the db on every request if it's not already
@@ -74,7 +74,7 @@ app.get('/', function (req, res) {
     initDb(function(err){});
   }
 
-  res.render('view/index.html', {});
+  res.sendFile(path.join(__dirname + '/views/index.html'));
 });
 
 // error handling
