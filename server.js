@@ -62,114 +62,18 @@ var initDb = function(callback) {
 app.use(express.static(path.join(__dirname, 'views/assets')));
 app.use(express.static(path.join(__dirname, 'views/html')));
 app.use(express.static(path.join(__dirname, 'views/js')));
-app.use(methodOverride("_method"));
-mongoose.promise = global.promise;
+//app.use(methodOverride("_method"));
+//mongoose.promise = global.promise;
 app.use(bodyParser.urlencoded({extended:true}));
-mongoose.promise = global.promise;
+//mongoose.promise = global.promise;
 
-var contactSchema = new mongoose.Schema({
-   fName: String,
-    email: String,
-    phone: Number,
-    comment: String
-});
-
-var contact = mongoose.model("contact", contactSchema);
-
-//ROUTES GOES HERE !!!//
-
-//ROOTS ROUTE - home page
-app.get("/", function(req, res){
-res.sendFile(path.join(__dirname+'/views/index.html'));
-});
-
-
-
-//INDEX - displays all the contacts that we have in the DB
-app.get("/contacts", function(req,res){
-    contact.find({}, function(err, allContacts){
-       if(err){
-           console.log(err)
-       }else {
-           res.render(path.join(__dirname+'/views/html/contacts.ejs'),{contacts:allContacts});
-
-       };
-    });
-});
-
-//CREATE - add new contacts to the DB
-app.post("/contacts", function(req, res){
-   var fName = req.body.fName;
-   var email = req.body.email;
-   var phone = req.body.phone;
-   var comment = req.body.comment;
-   var newContact = {fName:fName,email:email, phone:phone, comment:comment};
-   contact.create(newContact, function(err, newlyAdded){
-       if(err){
-           console.log(err)
-       } else {
-            res.redirect("/contacts");
-
-       }
-   });
-
-
-
-});
-
-
-//FORM - displays a form to make new contact
-app.get("/contacts/form", function(req, res){
-   res.render(path.join(__dirname+'/views/html/contact-form.ejs'));
-});
-
-//SHOW - shows one particular contact
-app.get("/contacts/:id", function(req, res){
-    contact.findById(req.params.id, function(err, foundContact){
-       if(err){
-           console.log(err)
-       } else {
-           res.render(path.join(__dirname+'/views/html/show.ejs'), {contact: foundContact});
-
-       }
-    });
-});
-
-
-//EDIT - the info we had
-app.get("/contacts/:id/edit", function(req, res){
-   contact.findById(req.params.id, function(err, foundContact){
-      if(err){
-          res.redirect("/contacts");
-      } else {
-          res.render(path.join(__dirname+'/views/html/edit.ejs'), {contact: foundContact});
-      }
-});
-
-
-});
-
-//UPDATE - the info we just edited
-app.put("/contacts/:id", function(req, res){
-   contact.findByIdAndUpdate(req.params.id, req.body.contact, function(err, updatedContact){
-       if(err){
-           res.redirect("/contacts");
-       } else {
-           res.redirect("/contacts/" + req.params.id);
-       }
-   });
-});
-
-//DELETE - a contact from the list
-app.delete("/contacts/:id", function(req, res){
-   contact.findByIdAndRemove(req.params.id, function(err){
-      if(err){
-          res.redirect("/contacts");
-      } else {
-          res.redirect("/contacts");
-      }
-   });
-
+app.get('/', function (req, res) {
+  // try to initialize the db on every request if it's not already
+  // initialized.
+  if (!db) {
+    initDb(function(err){});
+  }
+  res.render('view/index.html');
 });
 
 // error handling
