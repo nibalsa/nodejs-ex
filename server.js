@@ -73,7 +73,8 @@ app.get('/', function (req, res) {
   if (!db) {
     initDb(function(err){});
   }
-  res.render('view/index.html');
+
+  res.render('view/index.html', {});
 });
 
 // error handling
