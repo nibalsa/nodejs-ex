@@ -6,6 +6,7 @@ var express = require('express'),
     ejs = require("ejs");
     bodyParser = require("body-parser");
     methodOverride = require("method-override");
+    mongoose = require("mongoose");
 
 
 Object.assign=require('object-assign')
@@ -43,10 +44,7 @@ var db = null,
 var initDb = function(callback) {
   if (mongoURL == null) return;
 
-  var mongodb = require('mongodb');
-  if (mongodb == null) return;
-
-  mongodb.connect(mongoURL, function(err, conn) {
+  mongoose.connect(mongoURL, function(err, conn) {
     if (err) {
       callback(err);
       return;
