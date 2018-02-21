@@ -7,6 +7,7 @@ var express = require('express'),
     bodyParser = require("body-parser");
     methodOverride = require("method-override");
     mongoose = require("mongoose");
+    expressValidator = require('express-validator');
 
 
 Object.assign=require('object-assign')
@@ -58,6 +59,29 @@ var initDb = function(callback) {
     console.log('Connected to MongoDB at: %s', mongoURL);
   });
 };
+
+app.use(function(req,res,next) {
+    res.locals.errors = null;
+    next();
+});
+
+// From - https://github.com/ctavan/express-validator
+app.use(expressValidator({
+  errorFormatter: function(param, msg, value) {
+      var namespace = param.split('.')
+      , root    = namespace.shift()
+      , formParam = root;
+
+    while(namespace.length) {
+      formParam += '[' + namespace.shift() + ']';
+    }
+    return {
+      param : formParam,
+      msg   : msg,
+      value : value
+    };
+  }
+}));
 
 app.use(express.static(path.join(__dirname, 'views/assets')));
 app.use(express.static(path.join(__dirname, 'views/html')));
@@ -111,24 +135,42 @@ app.get("/contacts", function(req,res){
 
 //CREATE - add new contacts to the DB
 app.post("/contacts", function(req, res){
-   var fName = req.body.fName;
-   var email = req.body.email;
-   var phone = req.body.phone;
-   var comment = req.body.comment;
-   var newContact = {fName:fName,email:email, phone:phone, comment:comment};
-   contact.create(newContact, function(err, newlyAdded){
-       if(err){
-           console.log(err)
-       } else {
-            res.redirect("/contacts");
+  req.check('email')
+    // Every validator method in the validator lib is available as a
+    // method in the check() APIs.
+    // You can customize per validator messages with .withMessage()
+    .isEmail().withMessage('Must be an email')
 
-       }
-   });
+    // Every sanitizer method in the validator lib is available as well!
+    .trim()
+    .normalizeEmail();
 
+  // Check Input Field
+  req.check('fName', 'First Name is required').notEmpty();
+  req.check('phone', 'Phone number is required').notEmpty();
+  req.check('comment', 'Comment is required').notEmpty();
 
+  var errors = req.validationErrors();
 
+  if(errors) {
+    res.render(path.join(__dirname+'/html/contact-form.ejs'),{
+        errors : errors
+    });
+  } else {
+    var fName = req.body.fName;
+    var email = req.body.email;
+    var phone = req.body.phone;
+    var comment = req.body.comment;
+    var newContact = {fName:fName,email:email, phone:phone, comment:comment};
+    contact.create(newContact, function(err, newlyAdded){
+      if(err){
+        console.log(err)
+      } else {
+        res.redirect("/contacts");
+      }
+    });
+  }
 });
-
 
 //FORM - displays a form to make new contact
 app.get("/contacts/form", function(req, res){

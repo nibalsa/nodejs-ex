@@ -40,7 +40,7 @@ select, textarea{
     margin-right: 5%;
     max-width: 60%;
     font-family: 'Berkshire Swash', cursive;
-   
+
 }
 
 
@@ -82,7 +82,13 @@ select, textarea{
     margin-top: 50px;
     font-size: 110%;
     color: #572200;
-    
+
+}
+
+#error_box {
+  color: red;
+  font-size: 16px;
+  margin: 10px 120px;
 }
 
 /***********          error box             ***********/
@@ -116,18 +122,6 @@ color:#000000;
 background-color:#ffeaea;
 padding:5px;
 }
-
-
-
-
-.error{
-color:#f5ee63;
-font-size:16px;
-}
-
-
-
-
 
 .alert_box{
 width:200px;
